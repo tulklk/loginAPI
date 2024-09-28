@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Cart.css'; // Importing CSS styles
 import Footer from '../components/Footer';
 
@@ -14,8 +14,18 @@ const Cart = () => {
       quantity: 1 ,
     },
     // Add more items if needed
-  ]);
+  ])
+  const [loading, setLoading] = useState(true); // Thêm trạng thái loading
+  ;
+  useEffect(() => {
+    // Giả lập trạng thái tải dữ liệu
+    const timer = setTimeout(() => {
+      setLoading(false); // Sau 2 giây, sẽ dừng hiển thị loading
+    }, 2000); // Bạn có thể thay đổi thời gian này theo yêu cầu
 
+    // Cleanup timer nếu component bị unmount
+    return () => clearTimeout(timer);
+  }, []);
   const handleQuantityChange = (id, delta) => {
     setCartItems((items) =>
       items.map((item) =>
@@ -25,7 +35,15 @@ const Cart = () => {
       )
     );
   };
+  if (loading) {
+    return (
+      <div className="loading-container">
+  <div className="spinner"></div>
+  <p className="loading-text">Đang tải dữ liệu...</p>
+</div>
 
+    );
+  }
   const handleDelete = (id) => {
     setCartItems((items) => items.filter((item) => item.id !== id));
   };
@@ -34,6 +52,7 @@ const Cart = () => {
     (acc, item) => acc + item.discountedPrice * item.quantity,
     0
   );
+
 
   return (
     <div className="cart">

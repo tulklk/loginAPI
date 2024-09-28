@@ -1,8 +1,27 @@
-import React from "react";
+import React, {useState,useEffect} from "react";
 import { FaSeedling, FaStore, FaHandHoldingHeart, FaLeaf } from 'react-icons/fa';
 import '../styles/About.css';  // This assumes the file is located in `src/styles/`
 
 const About = () => {
+  const [loading, setLoading] = useState(true); // Thêm trạng thái loading
+  useEffect(() => {
+    // Giả lập trạng thái tải dữ liệu
+    const timer = setTimeout(() => {
+      setLoading(false); // Sau 2 giây, sẽ dừng hiển thị loading
+    }, 2000); // Bạn có thể thay đổi thời gian này theo yêu cầu
+
+    // Cleanup timer nếu component bị unmount
+    return () => clearTimeout(timer);
+  }, []);
+  if (loading) {
+    return (
+      <div className="loading-container">
+  <div className="spinner"></div>
+  <p className="loading-text">Đang tải dữ liệu...</p>
+</div>
+
+    );
+  }
   return (
     <div className="about">
       <div className="about-header">

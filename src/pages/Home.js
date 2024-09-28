@@ -1,5 +1,5 @@
 // src/pages/Home.js
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import Slider from 'react-slick';
 import Footer from '../components/Footer';
 import Services from '../components/homecomponents/Services';
@@ -22,6 +22,25 @@ function Home() {
     autoplay: true, // Tự động chuyển ảnh
     autoplaySpeed: 2000, // Thời gian giữa mỗi lần chuyển ảnh
   };
+  const [loading, setLoading] = useState(true); // Thêm trạng thái loading
+  useEffect(() => {
+    // Giả lập trạng thái tải dữ liệu
+    const timer = setTimeout(() => {
+      setLoading(false); // Sau 2 giây, sẽ dừng hiển thị loading
+    }, 2000); // Bạn có thể thay đổi thời gian này theo yêu cầu
+
+    // Cleanup timer nếu component bị unmount
+    return () => clearTimeout(timer);
+  }, []);
+  if (loading) {
+    return (
+      <div className="loading-container">
+  <div className="spinner"></div>
+  <p className="loading-text">Đang tải dữ liệu...</p>
+</div>
+
+    );
+  }
 
   return (
     <div className="home">

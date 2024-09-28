@@ -1,52 +1,94 @@
-import React, { useState } from 'react';
-import { FaFacebook, FaTwitter, FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
-import '../styles/Login.css'; // Import CSS file for styling
+import React, { useState, useEffect} from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+// import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import api from '../config/axios';
+import '../styles/Login.css';
 import Footer from '../components/Footer';
-import api from '../config/axios'; // Axios instance with pre-configured base URL
-import { useNavigate } from 'react-router-dom'; // useNavigate for redirection after login
+// import withLoading from '../components/withLoading';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true); // Thêm trạng thái loading
   
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Giả lập trạng thái tải dữ liệu
+    const timer = setTimeout(() => {
+      setLoading(false); // Sau 2 giây, sẽ dừng hiển thị loading
+    }, 2000); // Bạn có thể thay đổi thời gian này theo yêu cầu
+
+    // Cleanup timer nếu component bị unmount
+    return () => clearTimeout(timer);
+  }, []);
+  
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
-      // Gửi thông tin đăng nhập tới Spring Boot
-      // const response = await api.post('https://reqres.in/api/login', {
-      //   email: email,
-      //   password: password
-      // });
-      const response = await api.post('http://localhost:8080/identity/users/login', {
-        email: email,
-        password: password
-      });
-  
-      // Lấy token từ phản hồi và lưu vào localStorage
-      const { token } = response.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("userEmail", email);
-  
-      // Chuyển hướng người dùng về trang chủ sau khi đăng nhập thành công
-      navigate("/");
-      console.log("Đăng nhập thành công");
-  
+        // Gửi thông tin đăng nhập đến Spring Boot server
+        const response = await api.post("https://reqres.in/api/login", {
+            email: email,
+            password: password
+        });
+
+        
+
+        // Lấy user-info và lưu vào localStorage
+        const { userInfo } = response.data; // Assume the response contains an object called userInfo
+        localStorage.setItem("user-info", JSON.stringify(userInfo)); // Save the user-info as a string
+
+        // Điều hướng đến trang chủ sau khi đăng nhập thành công
+        navigate("/");
+
     } catch (error) {
-      console.error("Login error: ", error);
-      // Hiển thị thông báo lỗi nếu đăng nhập không thành công
-      setError('Invalid email or password. Please try again.');
+        console.error("Login error: ", error);
+        // Hiển thị thông báo lỗi
+        setError('Invalid email or password. Please try again.');
     }
-  };
+};
+
+
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword); // Toggle password visibility
+    setShowPassword(!showPassword);
   };
+
+  // const handleGoogleLoginSuccess = async (credentialResponse) => {
+  //   const googleToken = credentialResponse.credential; // Lấy token từ Google
+
+  //   try {
+  //     const response = await api.post('http://localhost:8080/identity/', {
+  //       idToken: googleToken,
+  //     });
+
+  //     const { token, role, email } = response.data;
+  //     localStorage.setItem("token", token);
+  //     localStorage.setItem("userEmail", email);
+  //     localStorage.setItem("userRole", role);
+
+  //     role === 'admin' ? navigate("/admin") : navigate("/");
+  //   } catch (error) {
+  //     setError('Google login failed. Please try again.');
+  //   }
+  // };
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+  <div className="spinner"></div>
+  <p className="loading-text">Đang tải dữ liệu...</p>
+</div>
+
+    );
+  }
 
   return (
     <div className="login-container">
@@ -97,9 +139,9 @@ const Login = () => {
         <div className="social-login">
           <p>Or Sign up using</p>
           <div className="social-icons">
-            <a href="#"><FaFacebook /></a>
+            {/* <a href="#"><FaFacebook /></a>
             <a href="#"><FaTwitter /></a>
-            <a href="#"><FaGoogle /></a>
+            <a href="#"><FaGoogle /></a> */}
           </div>
         </div>
         <div className="signup-link">
@@ -111,4 +153,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login; // Sử dụng HOC với Home

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 import Logo from '../assets/Flower_preview_rev_1.png';
-import { FaSearch, FaUser, FaShoppingBag } from 'react-icons/fa';
+import { FaSearch, FaUser, FaShoppingBag, FaSignOutAlt } from 'react-icons/fa';
 
 const products = [
   { id: 1, name: "Rose", description: "Beautiful red roses" },
@@ -14,14 +14,26 @@ const products = [
 
 function Navbar() {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [user, setUser] = useState(null); // Store user info
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (email) {
+      // Fetch user data from local storage (you could use an API call instead)
+      const userInfo = {
+        email,
+        username: '', // Dummy name, in real case fetch from API
+      };
+      setUser(userInfo);
+    }
+  }, []);
 
   const toggleSearchBar = () => {
-    // Toggle the visibility of the search bar
     setIsSearchVisible(!isSearchVisible);
     if (!isSearchVisible) {
-      // Reset search when toggling off
       setSearchTerm('');
       setSearchResults([]);
     }
@@ -32,16 +44,23 @@ function Navbar() {
     setSearchTerm(value);
 
     if (value) {
-      // Filter products based on search term
       const filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(value) ||
         product.description.toLowerCase().includes(value)
       );
       setSearchResults(filteredProducts);
     } else {
-      // Clear search results if no input
       setSearchResults([]);
     }
+  };
+
+  const handleLogout = () => {
+    // Clear user session
+    localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userRole');
+    setUser(null); // Remove user data from state
+    navigate("/login"); // Redirect to login page
   };
 
   return (
@@ -61,10 +80,8 @@ function Navbar() {
       </div>
 
       <div className="navbar-right">
-        {/* Search Icon */}
         <FaSearch className="navbar-icon" onClick={toggleSearchBar} />
-        
-        {/* Search Bar with Dynamic Results */}
+
         {isSearchVisible && (
           <div className="search-container">
             <input
@@ -86,11 +103,21 @@ function Navbar() {
             )}
           </div>
         )}
-        
-        {/* User and Cart Icons */}
-        <Link to="/login">
-          <FaUser className="navbar-icon" />
-        </Link>
+
+        {user ? (
+          <>
+            <span className="navbar-user">Welcome, {user.name}</span>
+            <Link to="/profile-page">
+              <FaUser className="navbar-icon" />
+            </Link>
+            <FaSignOutAlt className="navbar-icon" onClick={handleLogout} />
+          </>
+        ) : (
+          <Link to="/login">
+            <FaUser className="navbar-icon" />
+          </Link>
+        )}
+
         <div className="cart-icon-wrapper">
           <FaShoppingBag className="navbar-icon" />
           <span className="cart-count">0</span>

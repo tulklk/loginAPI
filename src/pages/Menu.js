@@ -1,9 +1,30 @@
-import React from "react";
+import React , {useState, useEffect} from "react";
 import { MenuList } from "../helpers/MenuList"; // Import danh sách các loại hoa
 import MenuItem from "../components/menucomponents/MenuItem";
 import "../styles/Menu.css";
 
 function Menu() {
+  const [loading, setLoading] = useState(true); // Thêm trạng thái loading
+  useEffect(() => {
+    // Giả lập trạng thái tải dữ liệu
+    const timer = setTimeout(() => {
+      setLoading(false); // Sau 2 giây, sẽ dừng hiển thị loading
+    }, 2000); // Bạn có thể thay đổi thời gian này theo yêu cầu
+
+    // Cleanup timer nếu component bị unmount
+    return () => clearTimeout(timer);
+  }, []);
+  if (loading) {
+    return (
+      <div className="loading-container">
+  <div className="spinner"></div>
+  <p className="loading-text">Đang tải dữ liệu...</p>
+</div>
+
+    );
+  }
+
+
   return (
     <div className="menu">
       {/* Left Sidebar - Categories */}
